@@ -4,6 +4,7 @@ import { HTMX_KNOWLEDGE } from "./data/htmx-info.js";
 
 const app = express();
 
+app.use(express.urlencoded({extended:false}));
 app.use(express.static("public"));
 
 app.get("/", (req, res) => {
@@ -28,20 +29,28 @@ app.get("/", (req, res) => {
         </header>
 
         <main>
-          <p>HTMX is a JavaScript library that you use without writing JavaScript code.</p>
-          <button hx-get="/info" hx-swap="outerHTML">Learn More</button>
+          <p hx-post="/note">HTMX is a JavaScript library that you use without writing JavaScript code.</p>
+          <form hx-post="/note">
+            <p>
+              <label for="note">Your note</label>
+              <input type="text" id="note" name="note">
+            </p>
+            <p>
+              <button>Save Note</button>
+            </p>
+          </form>
+          <ul>
+            ${HTMX_KNOWLEDGE.map((info) => `<li>${info}</li>`).join("")}
+          </ul>
         </main>
       </body>
     </html>
   `);
 });
 
-app.get('/info',(req,res)=>{
-  res.send(`
-  <ul>
-    ${HTMX_KNOWLEDGE.map(info=> `<li>${info}</li>`).join('')}
-  </ul>
-  `);
+app.post('/note',(req,res)=>{
+  const enteredNote = req.body.note;
+  HTMX_KNOWLEDGE.unshift(enteredNote)
 });
 
 app.listen(3000);
